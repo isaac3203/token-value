@@ -1,9 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 export default function Page() {
-  const htmlContent = String.raw`
-export default function Page() {
-  const htmlContent = `<!DOCTYPE html>
+  const htmlContent = String.raw`<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
