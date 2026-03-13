@@ -1,3 +1,7 @@
+'use client';
+import React, { useEffect } from 'react';
+export default function Page() {
+  const htmlContent = String.raw`
 export default function Page() {
   const htmlContent = `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -769,27 +773,41 @@ export default function Page() {
 <footer>
   <p>本文由与 Claude 的对话推导生成 · 概念仍在演进中</p>
 </footer>
-
-<script>
-  // Render KaTeX
-  renderMathInElement(document.body, {
-    delimiters: [
-      {left: '$$', right: '$$', display: true},
-      {left: '$', right: '$', display: false}
-    ],
-    throwOnError: false
-  });
-
-  // Scroll-triggered fade-in
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-</script>
-
 </body>
 </html>
-`;
+`; // 这里是 String.raw 反引号的结束
+
+  useEffect(() => {
+    // 渲染函数：将页面上的源码转换为精美数学公式
+    const renderMath = () => {
+      if (window.renderMathInElement) {
+        window.renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    };
+
+    // 动态加载自动渲染插件，并执行渲染
+    if (!window.renderMathInElement) {
+      const script = document.createElement('script');
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js";
+      script.async = true;
+      script.onload = renderMath;
+      document.head.appendChild(script);
+    } else {
+      renderMath();
+    }
+
+    // 渐显动画逻辑
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  }, []);
 
   return (
     <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
