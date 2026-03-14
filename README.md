@@ -1,3 +1,26 @@
+# Token Value Site & Intelligence Measurement
+
+这是一个关于 AI 产业链思考的项目，包含一个 **Token 价值计算器** 和一篇深度研究文章。
+
+## 🧠 核心研究：智能度量
+文章探讨了智能的本质——通用的、灵活的熵减能力，并提出了两个核心公式：
+- **比智容 (Cognitive Heat Capacity)**：$c_{\text{intel}} = E / (W \cdot \Delta H)$
+- **净智效 (Net Cognitive Efficiency)**：$\mathcal{I} = W \cdot \Delta H_{\text{true}} / E$
+
+## 🚀 在线访问
+- 文章与工具：[biasmoat.com](https://biasmoat.com)
+
+## 🧮 工具说明
+计算器位于 `/calculator` 路径，支持多维度 Token 价值推演。
+
+## 📄 授权协议
+本项目采用 [MIT License](LICENSE)。欢迎提交 PR 或在 Discussions 中交流！
+
+以下为正文
+
+---
+
+
 # 从 AI 产业链到智能度量：比智容与净智效的推导过程
 
 ## 摘要
