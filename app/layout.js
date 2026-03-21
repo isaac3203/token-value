@@ -1,8 +1,8 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Token 价值函数模型',
-  description: 'V(L) ≈ A · [Cnet · L − k · ln(L)] — AI 时代的价值量化工具',
+  title: 'Bias Moat — AI 时代的价值量化',
+  description: '用偏见构建护城河 — 净智度、Token 价值函数、交互式计算器',
 }
 
 export const viewport = {

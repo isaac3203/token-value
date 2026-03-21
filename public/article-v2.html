@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Token 价值函数模型 v2</title>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<!-- KaTeX CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+<style>
+  :root {
+    --bg: #f6f4ef;
+    --surface: #fffefa;
+    --ink: #1a1915;
+    --ink-light: #4a4740;
+    --ink-faint: #8a8578;
+    --accent: #b44a2d;
+    --teal: #1d6e5c;
+    --blue: #1a5276;
+    --gold: #a38520;
+    --border: #e0ddd4;
+    --border-light: #eae7e0;
+    --shadow: rgba(26, 25, 21, 0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    font-size: 17px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: 'Noto Sans SC', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+
+  /* Back link */
+  .back-link {
+    position: fixed;
+    top: 1.2rem;
+    left: 1.5rem;
+    z-index: 100;
+    font-size: 0.85rem;
+    color: var(--ink-light);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.9rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .back-link:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translateX(-2px);
+  }
+  .back-link svg { width: 14px; height: 14px; }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(170deg, #1a1915 0%, #2d2b24 50%, #3a372e 100%);
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 50% 30%, rgba(180, 74, 45, 0.12) 0%, transparent 70%);
+  }
+  .hero-label {
+    display: inline-block;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.2rem;
+    font-weight: 500;
+    position: relative;
+  }
+  .hero h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 900;
+    color: #fffefa;
+    margin-bottom: 2.5rem;
+    position: relative;
+    letter-spacing: 0.02em;
+  }
+  .hero-formula-card {
+    display: inline-block;
+    background: var(--surface);
+    padding: 1.8rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,254,250,0.1);
+    position: relative;
+    max-width: 95%;
+  }
+  .hero-formula-card .katex { font-size: 1.3em; }
+  .hero-condition {
+    color: var(--ink-faint);
+    font-size: 0.85rem;
+    margin-top: 0.8rem;
+    position: relative;
+  }
+
+  /* Container */
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  /* Article body */
+  .article-body {
+    padding: 3rem 0 5rem;
+  }
+
+  /* Sections */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 2.5rem 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+  @media (max-width: 640px) {
+    .section { padding: 1.5rem 1.2rem; }
+  }
+
+  /* Headings */
+  h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 2px solid var(--accent);
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  h2 .section-num {
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--blue);
+    margin: 2rem 0 0.8rem;
+  }
+  h3:first-child { margin-top: 0; }
+
+  /* Paragraphs */
+  p {
+    margin-bottom: 1rem;
+    color: var(--ink);
+    line-height: 1.9;
+  }
+
+  /* Strong */
+  strong {
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* Links */
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Lists */
+  ul, ol {
+    margin: 0.8rem 0 1.2rem 1.5rem;
+    line-height: 1.9;
+  }
+  li { margin-bottom: 0.4rem; }
+  li::marker { color: var(--accent); }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 1.2rem 0;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+  thead {
+    background: linear-gradient(180deg, #f0ede6, #e8e5dc);
+  }
+  th {
+    font-weight: 600;
+    color: var(--ink);
+    padding: 0.7rem 1rem;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+  }
+  td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(163, 133, 32, 0.04); }
+
+  /* Math display */
+  .math-block {
+    margin: 1.5rem 0;
+    padding: 1.2rem 1.5rem;
+    background: linear-gradient(135deg, #faf8f3, #f5f3ed);
+    border-left: 3px solid var(--teal);
+    border-radius: 0 8px 8px 0;
+    overflow-x: auto;
+    text-align: center;
+  }
+  .math-block .katex { font-size: 1.15em; }
+  .math-block-plain {
+    margin: 1.5rem 0;
+    text-align: center;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+  }
+
+  /* Inline code */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: #f0ede6;
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    color: var(--accent);
+  }
+
+  /* HR */
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border);
+    margin: 2rem 0;
+  }
+
+  /* Definition items */
+  .def-item {
+    margin-bottom: 0.6rem;
+    padding-left: 0;
+  }
+  .def-item strong {
+    color: var(--teal);
+  }
+
+  /* Confidence badge */
+  .confidence-high { color: var(--teal); font-weight: 600; }
+  .confidence-mid { color: var(--gold); font-weight: 600; }
+  .confidence-low { color: var(--accent); font-weight: 600; }
+
+  /* Three-line summary box */
+  .summary-box {
+    background: linear-gradient(135deg, rgba(29,110,92,0.06), rgba(26,82,118,0.06));
+    border: 1px solid rgba(29,110,92,0.2);
+    border-radius: 8px;
+    padding: 1.2rem 1.5rem;
+    margin: 1.2rem 0;
+  }
+  .summary-box p { margin-bottom: 0.3rem; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--ink-faint);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    html { font-size: 15px; }
+    .hero { padding: 4rem 1rem 3rem; }
+    .hero-formula-card { padding: 1.2rem 1rem; }
+    .hero-formula-card .katex { font-size: 0.9em; }
+    .back-link { top: 0.8rem; left: 0.8rem; font-size: 0.78rem; }
+    table { font-size: 0.82rem; }
+    th, td { padding: 0.5rem 0.6rem; }
+  }
+
+  /* TOC */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+  .toc h3 {
+    margin-top: 0;
+    color: var(--ink);
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+  }
+  .toc ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    columns: 2;
+    column-gap: 2rem;
+  }
+  @media (max-width: 500px) {
+    .toc ol { columns: 1; }
+  }
+  .toc li {
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
+    break-inside: avoid;
+  }
+  .toc a {
+    color: var(--ink-light);
+    text-decoration: none;
+  }
+  .toc a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- Back to Home -->
+<a href="/" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+  Back to Home
+</a>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="hero-label">Research Paper</div>
+  <h1>Token 价值函数模型 v2</h1>
+  <div class="hero-formula-card">
+    <span id="hero-formula">$$V(L) = A \cdot \delta \cdot \left[\left(\frac{Db \cdot \eta_0^2}{\eta_0 + D^2 b^2} - c\right) \cdot (L - 1) - \frac{b^2}{D \cdot \eta_0} \cdot \ln(L)\right]$$</span>
+    <div class="hero-condition"><span id="hero-cond">$L \geq 1$</span></div>
+  </div>
+</header>
+
+<!-- Article body -->
+<div class="container article-body">
+
+  <!-- TOC -->
+  <nav class="toc">
+    <h3>目录</h3>
+    <ol>
+      <li><a href="#s1">这个模型是什么</a></li>
+      <li><a href="#s2">三层架构</a></li>
+      <li><a href="#s3">变量定义</a></li>
+      <li><a href="#s4">打破框架</a></li>
+      <li><a href="#s5">跳出常规</a></li>
+      <li><a href="#s6">系统能力</a></li>
+      <li><a href="#s7">保真度</a></li>
+      <li><a href="#s8">对齐摩擦</a></li>
+      <li><a href="#s9">关键推导</a></li>
+      <li><a href="#s10">员工产出模型</a></li>
+      <li><a href="#s11">新旧映射表</a></li>
+      <li><a href="#s12">可测路径</a></li>
+      <li><a href="#s13">置信度清单</a></li>
+      <li><a href="#s14">开放问题</a></li>
+    </ol>
+  </nav>
+
+  <!-- Section 1 -->
+  <section class="section" id="s1">
+    <h2><span class="section-num">一</span>这个模型是什么</h2>
+    <p>Token 价值函数是一个<strong>个人经济决策工具</strong>——回答的问题是：我用这套人机协作系统持续产出，什么时候回本、什么时候超越雇一个员工的产出天花板、死亡谷有多深、我该不该出走。</p>
+    <p>它不是通用智能度量工具。智能的跨系统比较由净智效（$\mathcal{I} = W \cdot \Delta H_{\text{true}} / E$）和比智容（$c_{\text{intel}} = E / (W \cdot \Delta H)$）承担——那是另一套独立框架，解决另一类问题。两者各自有效，不需要互相推导。</p>
+  </section>
+
+  <!-- Section 2 -->
+  <section class="section" id="s2">
+    <h2><span class="section-num">二</span>三层架构</h2>
+    <div class="math-block">$$V(L) = \underbrace{A \cdot \delta}_{\text{战略层}} \cdot \underbrace{\left[\mathcal{C} \cdot (L - 1) - k \cdot \ln(L)\right]}_{\text{执行层}}$$</div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层次</th><th>变量</th><th>回答的问题</th></tr></thead>
+        <tbody>
+          <tr><td>战略层（括号外）</td><td>$A$, $\delta$</td><td>这个方向值多少钱？你投入多少命运？</td></tr>
+          <tr><td>执行层（括号内）</td><td>$\omega$, $\eta_0$, $c$</td><td>在选定方向上，每个 token 产出多少真实价值？</td></tr>
+          <tr><td>自变量</td><td>$L$</td><td>累计投入了多少 token？（$L \geq 1$，单位 kT）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>没有变量跨层出现。战略层放大执行层的回报，但不影响执行层的内部结构。</p>
+
+    <h3>边际价值函数</h3>
+    <p>在 token 流的第 $l$ 个位置（$l \geq 1$）：</p>
+    <div class="math-block">$$\frac{dV}{dl} = A \cdot \delta \cdot \left[\underbrace{\frac{\omega \cdot \eta_0^2}{\eta_0 + \omega^2}}_{\text{边际真实价值}} - \underbrace{c}_{\text{边际成本}} - \underbrace{\frac{b^2}{D \cdot \eta_0 \cdot l}}_{\text{边际对齐摩擦}}\right]$$</div>
+
+    <p>三项的含义：</p>
+    <p class="def-item"><strong>边际真实价值</strong> = 有效非标准要求（$\omega = Db$）&times; 系统能力（$\eta_0$）&times; 保真度（$F$）。三者乘法关系，任何一项为零则价值为零。</p>
+    <p class="def-item"><strong>边际成本</strong> = 每个 token 的固定支出。直接可查。</p>
+    <p class="def-item"><strong>边际对齐摩擦</strong> = 人机系统在早期需要大量"握手"——你的内在标准 $b$ 通过信道带宽 $D$ 逐步传达给系统。$D$ 越低传达越慢，摩擦越大。随经验积累递减（$1/l$）。</p>
+    <p>对 $l$ 从 1 到 $L$ 积分得累计净损益。积分下界 $l=1$，保证 $V(1) = 0$（还没开始工作时累计值为零）。</p>
+  </section>
+
+  <!-- Section 3 -->
+  <section class="section" id="s3">
+    <h2><span class="section-num">三</span>变量定义</h2>
+
+    <h3>人的三种能力</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>能力</th><th>符号</th><th>定义</th><th>公式位置</th></tr></thead>
+        <tbody>
+          <tr><td>提问能力</td><td>$\delta$</td><td><strong>打破框架</strong>——否定现有框架、打开新问题空间</td><td>战略层乘数</td></tr>
+          <tr><td>偏执程度</td><td>$b$</td><td>内在的非标准要求强度——你心里的标准偏离主流多远</td><td>执行层 &middot; 收益端 $\omega=Db$ 和摩擦端 $k=b^2/(D\eta_0)$</td></tr>
+          <tr><td>定义力</td><td>$D$</td><td>将内在偏执翻译为 AI 可执行指令的传达效率（$0 < D \leq 1$）</td><td>执行层 &middot; 收益端 $\omega=Db$ 和摩擦端 $k$ 的分母</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>核心派生量</h3>
+    <div class="math-block">$$\omega = D \cdot b \qquad \eta_0 = S \cdot \mu(T) \qquad F = \frac{\eta_0}{\eta_0 + \omega^2} \qquad k = \frac{b^2}{D \cdot \eta_0} \qquad \mathcal{C} = \frac{\omega \cdot \eta_0^2}{\eta_0 + \omega^2} - c$$</div>
+
+    <h3>全部变量</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>变量</th><th>名称</th><th>定义</th><th>取值范围</th><th>类型</th></tr></thead>
+        <tbody>
+          <tr><td>$\delta$</td><td>框架突破度</td><td>对现有框架的否定深度</td><td>$\geq 1$（1=接受框架）</td><td>人的能力 &middot; 战略层</td></tr>
+          <tr><td>$b$</td><td>内在偏执</td><td>你心里的标准偏离主流的距离</td><td>0.1&ndash;10</td><td>人的能力 &middot; 执行层</td></tr>
+          <tr><td>$D$</td><td>定义力</td><td>将内在偏执翻译为有效信号的传达效率</td><td>0&ndash;1（1=完美传达）</td><td>人的能力 &middot; 执行层</td></tr>
+          <tr><td>$\omega$</td><td>有效非标准要求</td><td>AI 实际接收到的非标准信号强度</td><td>$= D \cdot b$</td><td>复合量</td></tr>
+          <tr><td>$S$</td><td>突触深度</td><td>AI 流水线的层数、整合度、自动化衔接通畅性</td><td>0.1&ndash;10</td><td>人的架构能力</td></tr>
+          <tr><td>$\mu(T)$</td><td>智能密度</td><td>单个执行节点的能力水平</td><td>0.5&ndash;300（连续）</td><td>时代参数</td></tr>
+          <tr><td>$\eta_0$</td><td>系统能力</td><td>人机系统的纯产出能力</td><td>$= S \cdot \mu(T)$</td><td>系统能力</td></tr>
+          <tr><td>$F$</td><td>保真度</td><td>AI 产出中符合你意图的比例</td><td>$= \eta_0/(\eta_0 + \omega^2)$</td><td>派生量</td></tr>
+          <tr><td>$c$</td><td>单位成本</td><td>每 token 的总资源消耗</td><td>0.1&ndash;10</td><td>环境常数</td></tr>
+          <tr><td>$k$</td><td>对齐摩擦系数</td><td>人机首次对齐的信息鸿沟深度</td><td>$= b^2/(D \cdot \eta_0)$</td><td>派生量</td></tr>
+          <tr><td>$L$</td><td>Token 吞吐量</td><td>累计投入的 token 总量（kT）</td><td>$\geq 1$</td><td>自变量</td></tr>
+          <tr><td>$A$</td><td>现实放大器</td><td>责任与风险敞口——股权份额、命运投入度</td><td>0&ndash;5</td><td>外部乘数</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section 4 -->
+  <section class="section" id="s4">
+    <h2><span class="section-num">四</span><span>$\delta$</span> &middot; 打破框架</h2>
+
+    <h3>定义</h3>
+    <p>框架是被默认接受的前提——"手机有物理键盘"、"软件不如硬件值钱"、"电商需要一线城市用户"。$\delta$ 否定这些前提，打开新的问题空间。</p>
+    <p>$\delta = 1$：接受现有框架，在框架内操作。<br>$\delta > 1$：挑战框架，程度越高否定越深。</p>
+
+    <h3>与 <span>$\omega$</span> 的嵌套关系</h3>
+    <p>$\delta$ 和 $\omega$ 不是同层的可替代资源，而是嵌套关系：$\delta$ 选择在哪个空间里竞争，$\omega$ 在选定空间里执行差异化。$\delta$ 放大 $\omega$ 的回报，但不能替代 $\omega$——当 $\omega = 0$ 时，括号内只有 $-c \cdot (L-1)$，$\delta$ 放大的是亏损。</p>
+
+    <h3>案例检验</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>案例</th><th>$\delta$</th><th>$\omega$</th><th>结构</th></tr></thead>
+        <tbody>
+          <tr><td>乔布斯 &middot; iPhone</td><td>极高（手机=口袋电脑）</td><td>极高（触摸交互、App 生态）</td><td>高 &delta; 放大高 &omega;，乘积爆发</td></tr>
+          <tr><td>盖茨 &middot; 微软</td><td>极高（软件 > 硬件）</td><td>中等（早期借鉴 CP/M、Mac）</td><td>高 &delta; 放大中 &omega;，战略驱动</td></tr>
+          <tr><td>黄峥 &middot; 拼多多</td><td>极高（下沉市场+社交裂变）</td><td>中等（已有基础设施的变体）</td><td>高 &delta; 放大中 &omega;，战略驱动</td></tr>
+          <tr><td>字节 &middot; 抖音</td><td>极高（算法取代社交图谱）</td><td>高（沉浸交互+推荐引擎）</td><td>高 &delta; 放大高 &omega;</td></tr>
+          <tr><td>马云 &middot; 阿里巴巴</td><td>中等（同期有大量同行）</td><td>高（支付宝、免费模式）</td><td>中 &delta;，&omega; 主导</td></tr>
+          <tr><td>空想家</td><td>极高</td><td>&asymp; 0</td><td>&delta; 再大也只放大亏损</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>AI 时代的 <span>$\delta$</span> 革命</h3>
+    <p>前 AI 时代，每次方向选择的执行成本极高，大量可优化环节被锁定为"默认设置"——不是最优解，而是探索成本约束下的局部均衡。</p>
+    <p>当 $\eta_0$ 暴涨时，$\delta$ 的试错成本趋近于零。过去被成本屏蔽的 $\delta$ 空间全部打开。这是递归的——优化后的新系统创造新的 $\delta$ 空间。$\eta_0$ 足够高时，竞争从 $\omega$（跳出常规）退化为 $\delta$（打破框架）。</p>
+  </section>
+
+  <!-- Section 5 -->
+  <section class="section" id="s5">
+    <h2><span class="section-num">五</span><span>$\omega$</span> &middot; 跳出常规</h2>
+
+    <h3>定义</h3>
+    <div class="math-block">$$\omega = D \cdot b$$</div>
+    <p><strong>$b$（内在偏执）</strong>：你心里的标准偏离主流的距离。原始信号强度。取值 0.1&ndash;10。</p>
+    <p><strong>$D$（定义力）</strong>：将内在偏执翻译为 AI 可执行指令的传达效率。信道带宽。取值 0&ndash;1，$D=1$ 意味着完美传达，$\omega = b$；$D=0$ 意味着完全失语。不存在 $D > 1$——你不可能比自己心里想的表达得更清楚。</p>
+    <p><strong>$\omega$（有效非标准要求）</strong>：AI 实际接收到的非标准信号。最大值 = $b$（当 $D=1$）。</p>
+
+    <h3>D 的双倍杠杆</h3>
+    <p>D 同时出现在收益端（$\omega = Db$，提高 D 增大有效信号）和摩擦端（$k = b^2/(D \cdot \eta_0)$，提高 D 降低对齐成本）。<strong>提高 D 同时增收减摩——这是唯一的个人可控双倍杠杆。</strong></p>
+    <div class="math-block">$$\frac{\partial \omega}{\partial D} = b$$</div>
+    <p>D 提升一点，&omega; 增加 $b$ 个单位。$b$ 越大（越偏执），D 的边际效果越大——<strong>火药越猛，枪管的价值越高</strong>。</p>
+    <p><strong>D 低时</strong>：心里要 $b=8$，传达出来 $\omega = 0.3 \times 8 = 2.4$。AI 以为你要的没那么偏门，轻松完成，$F$ 高——但产出不是你真正要的。虚假繁荣。同时 $k = 64/(0.3 \times \eta_0)$ 极大，对齐过程漫长。</p>
+    <p><strong>D 高时</strong>：心里要 $b=8$，传达出来 $\omega = 1.0 \times 8 = 8$。AI 知道你要的很非标，$F$ 下降——但产出方向是对的。$k = 64/(1.0 \times \eta_0)$ 显著降低。</p>
+  </section>
+
+  <!-- Section 6 -->
+  <section class="section" id="s6">
+    <h2><span class="section-num">六</span><span>$\eta_0$</span> &middot; 系统能力</h2>
+
+    <div class="math-block">$$\eta_0 = S \cdot \mu(T)$$</div>
+    <p><strong>$S$（突触深度）</strong>：你搭建的 AI 流水线的架构能力——能串联多少层 AI 调用、中间的状态管理有多通畅、自动化衔接有多紧密。S 是人的架构能力，不是任务的属性。</p>
+    <p><strong>$\mu(T)$（智能密度）</strong>：单个执行节点接收一条指令后能独立完成多复杂的工作。连续取值。</p>
+    <p>两者相乘：S 决定管道有多深，&mu; 决定管道里每个节点有多强。</p>
+
+    <h3>S 天梯</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>S</th><th>突触深度</th><th>涌现能力</th><th>AI 架构对应</th></tr></thead>
+        <tbody>
+          <tr><td>0.3</td><td>无连接</td><td>无涌现，纯手工</td><td>无 AI</td></tr>
+          <tr><td>0.5</td><td>断裂弧</td><td>信号衰减</td><td>窗口对话 + 手动搬运</td></tr>
+          <tr><td>1.0</td><td>单层反射弧</td><td>一问一答</td><td>单次对话</td></tr>
+          <tr><td>3</td><td>三层（+记忆）</td><td>参照历史决策</td><td>Pipeline + 状态管理</td></tr>
+          <tr><td>5</td><td>五层（+规划）</td><td>预判、多步计划</td><td>Agent + 工具调用</td></tr>
+          <tr><td>7</td><td>七层（+元认知）</td><td>反思并修正自身推理</td><td>自主规划 + 自我验证</td></tr>
+          <tr><td>10</td><td>全皮层深度</td><td>自组织、自我迭代</td><td>AI 组织 AI</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3><span>$\mu(T)$</span> 智能密度刻度</h3>
+    <p>以"一个普通受教育成年人"为 &mu;=1 锚定。连续取值，对数分布。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>$\mu(T)$</th><th>含义</th><th>锚定标准</th></tr></thead>
+        <tbody>
+          <tr><td>0.5</td><td>简单执行</td><td>纯搬运、抄写 / 早期规则脚本</td></tr>
+          <tr><td>1</td><td>普通人</td><td>受教育成年人 / L1 对话 AI</td></tr>
+          <tr><td>3</td><td>训练有素</td><td>资深专业人士 / L2 推理 AI</td></tr>
+          <tr><td>10</td><td>领域专家</td><td>顶级教授 / 强 Agent AI</td></tr>
+          <tr><td>30</td><td>世界级</td><td>费曼、冯&middot;诺依曼级别</td></tr>
+          <tr><td>50</td><td>文明级</td><td>牛顿、爱因斯坦、达尔文</td></tr>
+          <tr><td>100</td><td>超人类</td><td>超越任何个体人类的单指令完成能力</td></tr>
+          <tr><td>300</td><td>远期 AI</td><td>单指令可完成当前顶级人类数月的工作</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>S 与 <span>$\mu(T)$</span> 的耦合</h3>
+    <p>S 的有效深度受限于单个节点的信噪比——&mu; 越高，节点越可靠，链条走得越深。&mu; 低时强行加深链条导致偏差指数累积，系统崩盘。参考上限 $S_{\text{practical}} \approx \ln(\mu) \times 2$（软约束，非硬性）。</p>
+    <p>$\eta_0$ 的三重杠杆效应：提升每个 token 的收益（$\mathcal{C}$ 的乘数端）、抑制保真度损失（$F$ 分母中的 $\eta_0$）、压低对齐摩擦（$k$ 分母中的 $\eta_0$）。</p>
+  </section>
+
+  <!-- Section 7 -->
+  <section class="section" id="s7">
+    <h2><span class="section-num">七</span>保真度</h2>
+
+    <h3>公式</h3>
+    <div class="math-block">$$F(\omega, \eta_0) = \frac{\eta_0}{\eta_0 + \omega^2} = \frac{S\mu}{S\mu + D^2 b^2}$$</div>
+
+    <h3>F 的含义</h3>
+    <p>F 度量的是：<strong>AI 产出中符合你意图的比例。</strong> 你要什么，AI 做到了多少。</p>
+    <p>方向值不值钱是 $\delta$ 的事（战略层），AI 做没做到你要的是 $F$ 的事（执行层）。两者分离，没有交叉。</p>
+
+    <h3><span>$\beta=2$</span> 的三重论证</h3>
+    <ol>
+      <li><strong>泰勒展开的普适性</strong>：任何光滑保真度函数在 $\omega=0$ 处取极大值，一阶项消失，主导项必为 $\omega^2$。数学结构的必然。</li>
+      <li><strong>信息几何</strong>：KL 散度在分布接近时按 Fisher 信息度量二次增长。&beta;=2 是概率分布空间的内在几何性质。</li>
+      <li><strong>物理普适性</strong>：偏离平衡态的耗散主导项为平方（胡克定律、焦耳定律、赛德尔像差、涨落理论）。</li>
+    </ol>
+
+    <h3>边界行为</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>条件</th><th>$F$ 值</th><th>物理含义</th></tr></thead>
+        <tbody>
+          <tr><td>$\eta_0 \to \infty$</td><td>$F \to 1$</td><td>系统足够强，任何 $\omega$ 都能忠实执行</td></tr>
+          <tr><td>$\eta_0 \to 0$</td><td>$F \to 0$</td><td>系统太弱，任何非标准要求都变形</td></tr>
+          <tr><td>$\omega = 0$</td><td>$F = 1$</td><td>无非标准要求，无保真度损失</td></tr>
+          <tr><td>$\omega \to \infty$</td><td>$F \to 0$</td><td>要求超出系统承载能力</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section 8 -->
+  <section class="section" id="s8">
+    <h2><span class="section-num">八</span>对齐摩擦</h2>
+
+    <h3>公式</h3>
+    <div class="math-block">$$k = \frac{b^2}{D \cdot \eta_0} = \frac{b^2}{D \cdot S \cdot \mu(T)}$$</div>
+    <p><strong>派生量</strong>，非自由参数。</p>
+    <p><strong>为什么 D 在分母（k 与 D 反相关）</strong>：$k$ 度量的是"系统对齐到你真实内在标准 $b$ 的总成本"。每一轮迭代你只能传达残余偏差的 $D$ 比例，收敛速率正比于 $D$，总轮数正比于 $1/D$。D 低时系统快速对齐到一个错误目标（它以为你要的只有 $Db$），你一直不满意，反复迭代。D 高时系统一次性接收到真实标准，对齐迅速完成。</p>
+    <p><strong>为什么收益端用 $\omega = Db$ 而摩擦端用 $b^2/D$</strong>：收益端度量的是"AI 实际接收到的信号强度"——AI 只看到 $Db$。摩擦端度量的是"对齐到你心里真正要的东西的成本"——目标是 $b$，效率是 $D$。</p>
+    <p><strong>D 的双倍杠杆</strong>：提高 D &rarr; 收益端 $\omega$ 上升（增收），摩擦端 $k$ 下降（减摩）。复合效应超线性压缩死亡谷。</p>
+
+    <h3>F 与 k 的分离近似</h3>
+    <p>$F$ 在每个 token 上施加恒定折扣（永久能力天花板），$k/l$ 在早期施加额外惩罚（暂态学习成本）。这是一个分离近似，重叠集中在小 $L$ 区域，可能高估死亡谷深度（保守方向）。大 $L$ 时误差可忽略。</p>
+  </section>
+
+  <!-- Section 9 -->
+  <section class="section" id="s9">
+    <h2><span class="section-num">九</span>关键推导</h2>
+
+    <h3>最优有效偏见 <span>$\omega^*$</span></h3>
+    <div class="math-block">$$g(\omega) = \frac{\omega \cdot \eta_0^2}{\eta_0 + \omega^2}, \qquad \frac{dg}{d\omega} = 0 \implies \omega^* = \sqrt{\eta_0}$$</div>
+    <p>系统越强，最优有效偏见越大。最优点处保真度恒为 $F^* = 1/2$。</p>
+    <p><strong>最大化收益的操作者，永远在用掉恰好一半的保真度来换取独特性。</strong> $\eta_0$ 的作用不是改变 $1/2$ 的比例，而是改变预算总量。</p>
+
+    <h3>最优点的 D-b 含义</h3>
+    <p>$\omega^* = \sqrt{\eta_0}$ 即 $Db = \sqrt{S\mu}$。对给定内在偏执 $b$，最优定义力 $D^* = \sqrt{S\mu}/b$。若 $D^* > 1$，说明系统能力强到不需要完美表达也到最优点。若 $D^* < 1$，说明偏执过深，当前 D 无法完全传达——需提升 D 或降低 b。</p>
+
+    <h3>生死线</h3>
+    <div class="math-block">$$\mathcal{C} > 0 \implies \frac{Db \cdot \eta_0^2}{\eta_0 + D^2 b^2} > c$$</div>
+    <p>低于此线，永远亏损。</p>
+
+    <h3>谷底</h3>
+    <div class="math-block">$$L^* = \frac{k}{\mathcal{C}} = \frac{b^2/(D \cdot \eta_0)}{\frac{Db \cdot \eta_0^2}{\eta_0 + D^2 b^2} - c}$$</div>
+    <p>$L^*$ 是累计亏损最深处。$L^* > e \approx 2.718$ 时死亡谷存在，$L^* < e$ 时消失。</p>
+
+    <h3>谷底深度</h3>
+    <div class="math-block">$$V(L^*) = A \cdot \delta \cdot k \cdot [1 - \ln(L^*)]$$</div>
+
+    <h3>回本点</h3>
+    <div class="math-block">$$\mathcal{C} \cdot (L_2 - 1) = k \cdot \ln(L_2)$$</div>
+    <p>超越方程，无初等解析解。</p>
+
+    <h3>出走点</h3>
+    <p>员工产出天花板（固定量，不随 L 增长）：</p>
+    <div class="math-block">$$P_{\text{human}} = \omega_e \cdot u_e \cdot s_c \cdot \rho_e \cdot 4$$</div>
+    <p>其中 $\omega_e = D_e \cdot b_e$（员工的有效非标准要求），$u_e$（员工个人智力密度），$s_c$（公司组织管理水平），$\rho_e$（尽职度：1=正常 8 小时，2=16 小时，3=废寝忘食），4 是工作量常量极限（4kT/日）。</p>
+    <p>出走点 $L_w$ 满足 $V(L_w) = P_{\text{human}}$（曲线穿越水平线）。</p>
+
+    <h3>三条线</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>条件</th><th>含义</th></tr></thead>
+        <tbody>
+          <tr><td>$\mathcal{C} > 0$</td><td><strong>生死线</strong>：净边际价值转正</td></tr>
+          <tr><td>$L^* < e$</td><td><strong>死亡谷线</strong>：谷底不为负</td></tr>
+          <tr><td>$L^* < 1$</td><td><strong>舒适线</strong>：起步即盈利（注：$L < 1$ 无物理意义，此处指 $L^*$ 的数学值小于 1，即曲线一开始就上升）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section 10 -->
+  <section class="section" id="s10">
+    <h2><span class="section-num">十</span><span>$P_{\text{human}}$</span> 员工产出模型</h2>
+    <p>员工和 AI 系统的结构不同。员工不需要跟自己"对齐"——他想做什么就去做。员工的上限是固定的每日产出天花板，受以下因素制约：</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>变量</th><th>名称</th><th>取值</th><th>含义</th></tr></thead>
+        <tbody>
+          <tr><td>$b_e$</td><td>员工偏执</td><td>0.1&ndash;10</td><td>员工的非标准要求强度</td></tr>
+          <tr><td>$D_e$</td><td>员工定义力</td><td>0&ndash;1</td><td>员工的传达/执行效率</td></tr>
+          <tr><td>$u_e$</td><td>个人智力密度</td><td>0.1&ndash;5</td><td>员工单节点能力（与 &mu; 对称）</td></tr>
+          <tr><td>$s_c$</td><td>公司组织水平</td><td>0.1&ndash;3</td><td>公司组织管理效率</td></tr>
+          <tr><td>$\rho_e$</td><td>尽职度</td><td>0.1&ndash;3</td><td>岗位职责履行比例</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="math-block">$$P_{\text{human}} = D_e \cdot b_e \cdot u_e \cdot s_c \cdot \rho_e \cdot 4$$</div>
+    <p>没有保真度折损（员工不存在"意图传达给自己"的保真度问题）。用 $\rho_e$（尽职度）替代——度量他对岗位职责履行了多少。</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>$\rho_e$</th><th>含义</th></tr></thead>
+        <tbody>
+          <tr><td>0.3</td><td>摸鱼，出工不出力</td></tr>
+          <tr><td>0.6</td><td>半投入</td></tr>
+          <tr><td>1.0</td><td>正常尽职，8 小时满负荷</td></tr>
+          <tr><td>1.5</td><td>经常加班</td></tr>
+          <tr><td>2.0</td><td>16 小时高强度</td></tr>
+          <tr><td>3.0</td><td>废寝忘食，24 小时</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section 11 -->
+  <section class="section" id="s11">
+    <h2><span class="section-num">十一</span>新旧映射表</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>新变量</th><th>旧变量</th><th>关系</th><th>变化说明</th></tr></thead>
+        <tbody>
+          <tr><td>$\delta$</td><td>无（隐含在 B 中）</td><td>从 B 中分离的战略维度</td><td>新增</td></tr>
+          <tr><td>$b$</td><td>$B$</td><td>$b$ 是 B 去掉战略成分后的执行层投影</td><td>重新定义</td></tr>
+          <tr><td>$D$</td><td>$D$</td><td>从 &eta; 中分离，取值 0&ndash;1，进入 $\omega = Db$ 和 $k = b^2/(D\eta_0)$</td><td>范围收窄，双倍杠杆明确化</td></tr>
+          <tr><td>$\omega$</td><td>$B$</td><td>$\omega = D \cdot b$</td><td>新增复合量</td></tr>
+          <tr><td>$\eta_0$</td><td>$D \cdot S \cdot \mu$</td><td>$\eta_0 = S \cdot \mu$，不含 D</td><td>D 被分离出去</td></tr>
+          <tr><td>$F$</td><td>无（隐含 $F=1$）</td><td>$F = \eta_0/(\eta_0 + \omega^2)$</td><td>新增</td></tr>
+          <tr><td>$k$</td><td>$B^2/(D \cdot \mu)$</td><td>$k = b^2/(D \cdot \eta_0)$</td><td>D 在分母（低 D 放大摩擦）</td></tr>
+          <tr><td>$\mu(T)$</td><td>离散 AGI 五级</td><td>连续取值 0.5&ndash;300</td><td>从离散改连续</td></tr>
+          <tr><td>$P_{\text{human}}$</td><td>$B_e D_e S_e u_e \cdot 4$</td><td>$\omega_e \cdot u_e \cdot s_c \cdot \rho_e \cdot 4$</td><td>加入尽职度，去掉 $F_e$</td></tr>
+          <tr><td>$V(L)$</td><td>$C_{net} \cdot L - k \ln(L)$</td><td>$C_{net} \cdot (L-1) - k \ln(L)$</td><td>严格积分形式，$L \geq 1$</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section 12 -->
+  <section class="section" id="s12">
+    <h2><span class="section-num">十二</span>可测路径</h2>
+
+    <h3><span>$\delta$</span> — 框架突破度</h3>
+    <ul>
+      <li><strong>市场定价</strong>：你定义的新方向所打开的市场规模。</li>
+      <li><strong>事后验证</strong>：该方向在被市场验证后的回报倍数。</li>
+      <li><strong>注意</strong>：&delta; 的价值在产出时刻常常不确定，分布服从幂律。</li>
+    </ul>
+
+    <h3><span>$\omega$</span> — 有效非标准要求</h3>
+    <ul>
+      <li><strong>市场价格溢价</strong>：你的产出售价 &divide; AI 默认产出售价。</li>
+      <li><strong>盲测区分率</strong>：你的产出与 AI 默认产出混合，专家盲测区分率。</li>
+      <li><strong>A/B 对比</strong>：同一任务，有你介入 vs 纯 AI，产出质量差。</li>
+    </ul>
+
+    <h3><span>$\eta_0$</span> — 系统能力</h3>
+    <ul>
+      <li><strong>标准化任务基准</strong>：固定任务集上的完成率 &times; 速度。</li>
+      <li><strong>实际操作</strong>：换更强模型（&mu; 提升）、搭更深 agent 流程（S 提升）。</li>
+    </ul>
+
+    <h3>F — 保真度</h3>
+    <ul>
+      <li><strong>事实性任务</strong>：正确率。</li>
+      <li><strong>开放性任务</strong>：专家评估意图符合率。</li>
+      <li><strong>代理指标</strong>：返工率。$F \approx 1 -$ 返工率。</li>
+    </ul>
+
+    <h3>k — 对齐摩擦系数</h3>
+    <ul>
+      <li><strong>通过 $L^*$ 反推</strong>：$k = \mathcal{C} \cdot L^*$。</li>
+      <li><strong>代理指标</strong>：新任务类型的迭代次数 &times; 每次迭代 token 消耗。</li>
+      <li><strong>实证检验</strong>：对同一人（b 固定），改变 D（比如用更好的 prompt 模板），测 $L^*$ 变化，验证 $k \propto 1/D$。</li>
+    </ul>
+  </section>
+
+  <!-- Section 13 -->
+  <section class="section" id="s13">
+    <h2><span class="section-num">十三</span>置信度清单</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>结论</th><th>置信度</th><th>支撑</th></tr></thead>
+        <tbody>
+          <tr><td>$\delta$ 与 $\omega$ 是嵌套关系（非平行、非乘法）</td><td><span class="confidence-high">90%</span></td><td>案例检验 + &omega;=0 时 &delta; 只放大亏损</td></tr>
+          <tr><td>$\omega = D \cdot b$，D 从 &eta; 中分离</td><td><span class="confidence-mid">85%</span></td><td>D 作用在信号传递，因果位置不同于系统能力</td></tr>
+          <tr><td>$D \in [0, 1]$ 作为传达效率</td><td><span class="confidence-high">90%</span></td><td>不可能比心里想的表达得更清楚</td></tr>
+          <tr><td>$k = b^2/(D \cdot \eta_0)$，D 在分母</td><td><span class="confidence-mid">85%</span></td><td>对齐目标是 b 而非 &omega;，D 是对齐过程的信道效率</td></tr>
+          <tr><td>$\eta_0$ 必须进入 F</td><td><span class="confidence-high">95%+</span></td><td>物理约束：同 &omega; 下更强系统保真度应更高</td></tr>
+          <tr><td>&beta;=2 作为主导阶</td><td><span class="confidence-high">90%</span></td><td>泰勒普适性 + KL 散度定理 + 物理二次耗散</td></tr>
+          <tr><td>$F^* = 1/2$ 处收益最大化</td><td><span class="confidence-mid">85%</span></td><td>由 &beta;=2 + 功能形式联合推出</td></tr>
+          <tr><td>$F = \eta_0/(\eta_0+\omega^2)$ 作为全局形式</td><td><span class="confidence-low">65%</span></td><td>最简满足所有边界条件，大 &omega; 行为可能偏离</td></tr>
+          <tr><td>F 是意图保真度（非客观真理保真度）</td><td><span class="confidence-high">95%</span></td><td>方向值不值钱是 &delta; 的事，F 只管执行</td></tr>
+          <tr><td>F-k 分离近似在大 L 有效</td><td><span class="confidence-high">90%</span></td><td>重叠仅影响死亡谷区域且方向保守</td></tr>
+          <tr><td>严格积分形式 $(L-1)$，$L \geq 1$</td><td><span class="confidence-high">95%</span></td><td>$V(1)=0$ 物理边界条件；$L<1$ 时 $\ln(L)<0$ 产生虚假正值</td></tr>
+          <tr><td>$\mu(T)$ 连续刻度，人类锚定</td><td><span class="confidence-mid">85%</span></td><td>爱因斯坦/牛顿是人类天花板，不应只用 AGI 等级衡量</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section 14 -->
+  <section class="section" id="s14">
+    <h2><span class="section-num">十四</span>开放问题</h2>
+    <ol>
+      <li><strong><span>$\delta$</span> 的概率结构</strong>：$\delta$ 作为幂律随机变量时，$E[A \cdot \delta]$ 的分布特征及其对投资决策的含义。</li>
+      <li><strong>大 <span>$\omega$</span> 区域的 F 修正</strong>：有理函数 vs 高斯衰减（$F = e^{-\omega^2/\eta_0}$），需实证数据区分。</li>
+      <li><strong>F-k 重叠的精确化</strong>：若需提高死亡谷区域精度，可引入位置相关保真度 $F(l)$。</li>
+      <li><strong>实证检验</strong>：测量不同 D 下的 $L^*$ 变化验证 $k \propto 1/D$；测量最优操作者的返工率是否接近 50%。</li>
+      <li><strong>$k = b^2/(D \cdot \eta_0)$ 中 $1/D$ 还是 $1/D^2$ 的精确确认</strong>：当前选择 $1/D$（线性信道带宽），若实证数据支持非线性传达可调整。</li>
+    </ol>
+  </section>
+
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>Token Value Function Model v2</p>
+</footer>
+
+<!-- KaTeX JS -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$', right: '$', display: false}
+    ],
+    throwOnError: false,
+    trust: true
+  });"></script>
+
+</body>
+</html>
