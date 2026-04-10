@@ -1,115 +1,205 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+/* ==========================================================================
+   Bias Moat · Wes Anderson candy edition
+   Palette inspired by futuretalentquiz + Mendl's box / Grand Budapest Hotel
+   - Buttercream page, ivory cards, symmetric double-frame, pastel jewel pops
+   - Fonts: geometric sans (Futura stack) + Chinese serif for display
+   - No Google Fonts @import (R-7 mainland CN compliance)
+   ========================================================================== */
 
 :root {
-  --bg-deep: #08080c;
-  --bg-surface: #0e0e14;
-  --bg-card: rgba(255,255,255,0.025);
-  --bg-card-hover: rgba(255,255,255,0.04);
-  --border: rgba(180,160,120,0.1);
-  --border-accent: rgba(212,168,85,0.25);
-  --text-primary: #e8e0d0;
-  --text-secondary: rgba(180,160,120,0.6);
-  --text-muted: rgba(180,160,120,0.35);
-  --gold: #d4a855;
-  --gold-dim: rgba(212,168,85,0.6);
-  --green: #50c88c;
-  --green-dim: rgba(80,200,140,0.15);
-  --red: #dc5050;
-  --red-dim: rgba(220,80,80,0.12);
-  --yellow: #dcb43c;
-  --yellow-dim: rgba(220,180,60,0.12);
-  --blue: #60b8e0;
-  --purple: #a080d0;
-  --coral: #c08080;
-  --font-display: 'Instrument Serif', Georgia, serif;
-  --font-body: 'DM Sans', -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
-  --radius: 12px;
-  --radius-sm: 8px;
+  /* Surfaces — bright, warm, candy-shop */
+  --bg-deep:    #fdf5e0;                        /* page: warm buttercream */
+  --bg-surface: #fffcf0;                        /* card/panel: ivory */
+  --bg-card:    #fffcf0;
+  --bg-card-hover: #fff6dc;
+  --bg-tint:    rgba(45, 42, 36, 0.04);
+
+  /* Borders & rules */
+  --border:        rgba(45, 42, 36, 0.18);
+  --border-strong: rgba(45, 42, 36, 0.35);
+  --border-accent: rgba(232, 160, 154, 0.55);
+
+  /* Typography colors — warm ink, not coffee */
+  --text-primary:   #2d2a24;                    /* warm ink */
+  --text-secondary: #615747;                    /* warm walnut (lighter) */
+  --text-muted:     #857a68;                    /* warm stone (legible) */
+
+  /* Candy pastels — named palette */
+  --cream:         #fdf5e0;
+  --sunset-pink:   #e8a09a;
+  --sunset-pink-dim: rgba(232, 160, 154, 0.22);
+  --powder-blue:   #a8c5d6;
+  --powder-blue-dim: rgba(168, 197, 214, 0.24);
+  --mint:          #b8ddd1;
+  --mint-dim:      rgba(184, 221, 209, 0.28);
+  --lemon-yellow:  #f4d35e;
+  --lemon-yellow-dim: rgba(244, 211, 94, 0.22);
+  --bright-red:    #d64545;
+  --bright-red-dim: rgba(214, 69, 69, 0.14);
+  --peach:         #f8c8a0;
+  --dusty-pink:    #efc5c2;
+  --plum:          #8a5b7a;
+
+  /* Semantic accent aliases (used by homepage + article pages) */
+  --rose:     var(--sunset-pink);
+  --rose-dim: var(--sunset-pink-dim);
+  --teal:     var(--powder-blue);
+  --teal-dim: var(--powder-blue-dim);
+  --moss:     var(--mint);
+  --moss-dim: var(--mint-dim);
+  --mustard:  var(--lemon-yellow);
+  --mustard-dim: var(--lemon-yellow-dim);
+  --brick:    var(--bright-red);
+  --brick-dim: var(--bright-red-dim);
+  --navy:     #2a3557;                          /* deep navy header pill */
+
+  /* Legacy aliases (kept for recharts / article pages) */
+  --gold:     var(--lemon-yellow);
+  --gold-dim: var(--lemon-yellow-dim);
+  --green:    var(--mint);
+  --green-dim: var(--mint-dim);
+  --red:      var(--bright-red);
+  --red-dim:  var(--bright-red-dim);
+  --yellow:   var(--lemon-yellow);
+  --yellow-dim: var(--lemon-yellow-dim);
+  --blue:     var(--powder-blue);
+  --purple:   var(--plum);
+  --coral:    var(--sunset-pink);
+
+  /* Fonts — no network fetch */
+  --font-display: Futura, "Futura PT", "Helvetica Neue", "PingFang SC",
+                  "Noto Serif SC", "Source Han Serif SC", Georgia, serif;
+  --font-serif:   "PingFang SC", "Noto Serif SC", "Source Han Serif SC",
+                  Georgia, "Times New Roman", serif;
+  --font-body:    "Helvetica Neue", "PingFang SC", "Noto Sans SC",
+                  "Source Han Sans SC", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:    "SF Mono", "JetBrains Mono", Menlo, Consolas, "Courier New", monospace;
+
+  /* Shape */
+  --radius:    4px;
+  --radius-sm: 2px;
+  --radius-lg: 6px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 body {
   background: var(--bg-deep);
   color: var(--text-primary);
   font-family: var(--font-body);
-  line-height: 1.5;
+  line-height: 1.55;
   min-height: 100dvh;
+  /* sugar-grain noise — brighter than old paper grain (opacity 0.05-0.06) */
+  background-image:
+    radial-gradient(rgba(232, 160, 154, 0.06) 1px, transparent 1px),
+    radial-gradient(rgba(168, 197, 214, 0.05) 1px, transparent 1px);
+  background-size: 7px 7px, 12px 12px;
+  background-position: 0 0, 3px 5px;
 }
 
-/* Slider styling */
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(180,160,120,0.12);
-  outline: none;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--gold);
-  border: 2px solid var(--bg-deep);
-  box-shadow: 0 0 8px rgba(212,168,85,0.3);
-  cursor: pointer;
-}
-input[type="range"]::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--gold);
-  border: 2px solid var(--bg-deep);
-  box-shadow: 0 0 8px rgba(212,168,85,0.3);
-  cursor: pointer;
-}
+a { color: inherit; }
 
-/* Accent color overrides per slider */
-.slider-blue::-webkit-slider-thumb { background: var(--blue); box-shadow: 0 0 8px rgba(96,184,224,0.3); }
-.slider-blue::-moz-range-thumb { background: var(--blue); box-shadow: 0 0 8px rgba(96,184,224,0.3); }
-.slider-purple::-webkit-slider-thumb { background: var(--purple); box-shadow: 0 0 8px rgba(160,128,208,0.3); }
-.slider-purple::-moz-range-thumb { background: var(--purple); box-shadow: 0 0 8px rgba(160,128,208,0.3); }
-.slider-green::-webkit-slider-thumb { background: var(--green); box-shadow: 0 0 8px rgba(80,200,140,0.3); }
-.slider-green::-moz-range-thumb { background: var(--green); box-shadow: 0 0 8px rgba(80,200,140,0.3); }
-.slider-coral::-webkit-slider-thumb { background: var(--coral); box-shadow: 0 0 8px rgba(192,128,128,0.3); }
-.slider-coral::-moz-range-thumb { background: var(--coral); box-shadow: 0 0 8px rgba(192,128,128,0.3); }
-.slider-orange::-webkit-slider-thumb { background: #e8a040; box-shadow: 0 0 8px rgba(232,160,64,0.3); }
-.slider-orange::-moz-range-thumb { background: #e8a040; box-shadow: 0 0 8px rgba(232,160,64,0.3); }
-
-/* Card */
+/* =========================================================================
+   Wes Anderson double-frame card
+   (outer 4px gap of page-cream + 1px ring of accent — Mendl's box feel)
+   ========================================================================= */
 .card {
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
-  padding: 20px;
-  transition: border-color 0.2s;
+  padding: 22px;
+  position: relative;
+  box-shadow: 0 0 0 4px var(--bg-deep), 0 0 0 5px var(--border);
+  /* hover: color only — no transform per brief */
+  transition: background 0.25s ease, box-shadow 0.25s ease;
 }
-.card:hover { border-color: var(--border-accent); }
+.card:hover {
+  background: var(--bg-card-hover);
+  box-shadow: 0 0 0 4px var(--bg-deep), 0 0 0 5px var(--border-strong),
+              0 10px 22px -16px rgba(45, 42, 36, 0.2);
+}
 
-/* Metric pill */
+/* Card-color accents via inline style: border + shadow outer ring */
+.card[data-accent] {
+  border-color: var(--accent, var(--border-strong));
+  box-shadow: 0 0 0 4px var(--bg-deep), 0 0 0 5px var(--accent, var(--border));
+}
+.card[data-accent]:hover {
+  background: var(--bg-card-hover);
+  box-shadow: 0 0 0 4px var(--bg-deep), 0 0 0 5px var(--accent, var(--border)),
+              0 12px 26px -16px rgba(45, 42, 36, 0.25);
+}
+
+/* =========================================================================
+   Preview-image region — bright ivory inset, no dark margins
+   ========================================================================= */
+.card-preview {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  margin: -6px -6px 16px;
+  padding: 6px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.card-preview-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--accent, var(--border));
+  background: #ffffff;
+  border-radius: var(--radius-sm);
+}
+.card-preview-inner img,
+.card-preview-inner svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.card-preview-emoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(64px, 9vw, 96px);
+  line-height: 1;
+  filter: saturate(1);
+  user-select: none;
+}
+.card-preview-corner {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  border: 1px dashed var(--accent, var(--border));
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+/* Metric pill (used by calculator/articles) */
 .metric {
-  background: var(--bg-card);
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 12px 16px;
 }
 .metric.warn {
-  background: var(--red-dim);
-  border-color: rgba(220,80,80,0.25);
+  background: var(--bright-red-dim);
+  border-color: var(--bright-red);
 }
 
-/* AGI button */
+/* AGI button (calculator) */
 .agi-btn {
-  background: var(--bg-card);
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 12px;
@@ -117,13 +207,16 @@ input[type="range"]::-moz-range-thumb {
   text-align: left;
   font-family: var(--font-body);
   color: var(--text-secondary);
-  transition: all 0.2s;
+  transition: background 0.2s, border-color 0.2s;
   width: 100%;
 }
-.agi-btn:hover { background: var(--bg-card-hover); }
+.agi-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-strong);
+}
 .agi-btn.active {
-  border-color: var(--gold-dim);
-  background: rgba(212,168,85,0.06);
+  border-color: var(--lemon-yellow);
+  background: var(--lemon-yellow-dim);
   color: var(--text-primary);
 }
 
@@ -131,13 +224,61 @@ input[type="range"]::-moz-range-thumb {
 .phase-bar {
   display: flex;
   gap: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   border: 1px solid var(--border);
 }
 .phase-segment { padding: 10px 14px; }
 
-/* Responsive grid */
+/* =========================================================================
+   Range slider — candy edition (ivory track + pastel thumbs)
+   ========================================================================= */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(45, 42, 36, 0.12);
+  border: 1px solid var(--border);
+  outline: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--lemon-yellow);
+  border: 2px solid var(--bg-surface);
+  box-shadow: 0 0 0 1px var(--lemon-yellow);
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--lemon-yellow);
+  border: 2px solid var(--bg-surface);
+  box-shadow: 0 0 0 1px var(--lemon-yellow);
+  cursor: pointer;
+}
+.slider-blue::-webkit-slider-thumb { background: var(--powder-blue); box-shadow: 0 0 0 1px var(--powder-blue); }
+.slider-blue::-moz-range-thumb     { background: var(--powder-blue); box-shadow: 0 0 0 1px var(--powder-blue); }
+.slider-purple::-webkit-slider-thumb { background: var(--plum); box-shadow: 0 0 0 1px var(--plum); }
+.slider-purple::-moz-range-thumb     { background: var(--plum); box-shadow: 0 0 0 1px var(--plum); }
+.slider-green::-webkit-slider-thumb { background: var(--mint); box-shadow: 0 0 0 1px var(--mint); }
+.slider-green::-moz-range-thumb     { background: var(--mint); box-shadow: 0 0 0 1px var(--mint); }
+.slider-coral::-webkit-slider-thumb { background: var(--sunset-pink); box-shadow: 0 0 0 1px var(--sunset-pink); }
+.slider-coral::-moz-range-thumb     { background: var(--sunset-pink); box-shadow: 0 0 0 1px var(--sunset-pink); }
+.slider-orange::-webkit-slider-thumb { background: var(--peach); box-shadow: 0 0 0 1px var(--peach); }
+.slider-orange::-moz-range-thumb     { background: var(--peach); box-shadow: 0 0 0 1px var(--peach); }
+
+/* =========================================================================
+   Responsive grids (used by article/calculator pages)
+   ========================================================================= */
 .grid-3 {
   display: grid;
   grid-template-columns: 1fr;
@@ -183,10 +324,33 @@ input[type="range"]::-moz-range-thumb {
   .grid-agi { grid-template-columns: repeat(5, 1fr); }
 }
 
-/* Smooth reveal */
+/* =========================================================================
+   Decorative utility — symmetric ornament divider
+   ========================================================================= */
+.ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--bright-red);
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+.ornament::before,
+.ornament::after {
+  content: "";
+  flex: 0 0 48px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+/* Reveal animation */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 .fade-up {
   animation: fadeUp 0.5s ease-out forwards;

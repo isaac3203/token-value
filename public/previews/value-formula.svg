@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="价值等于产出减去成本">
+  <defs>
+    <pattern id="noise" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect width="4" height="4" fill="#f5efd8"/>
+      <circle cx="1" cy="1" r="0.35" fill="#c8963e" opacity="0.18"/>
+      <circle cx="3" cy="3" r="0.35" fill="#a8445e" opacity="0.14"/>
+    </pattern>
+  </defs>
+
+  <!-- Cream background -->
+  <rect width="640" height="400" fill="#f5efd8"/>
+  <rect width="640" height="400" fill="url(#noise)"/>
+
+  <!-- Outer double frame -->
+  <rect x="18" y="18" width="604" height="364" fill="none" stroke="#8b6620" stroke-width="2"/>
+  <rect x="26" y="26" width="588" height="348" fill="#fffdf5" stroke="#8b6620" stroke-width="1"/>
+
+  <!-- Decorative top label -->
+  <rect x="230" y="50" width="180" height="26" fill="none" stroke="#8b6620" stroke-width="1.2"/>
+  <text x="320" y="68" font-family="'Futura', 'Helvetica Neue', sans-serif" font-size="12" fill="#8b6620" text-anchor="middle" letter-spacing="3">
+    VALUE FUNCTION
+  </text>
+
+  <!-- Chinese title -->
+  <text x="320" y="128" font-family="'PingFang SC','Noto Serif SC', 'Source Han Serif', serif" font-size="24" fill="#2c2416" text-anchor="middle" font-weight="600" letter-spacing="4">
+    价 值 函 数
+  </text>
+
+  <!-- Divider ornament -->
+  <g stroke="#a8445e" stroke-width="1">
+    <line x1="215" y1="150" x2="275" y2="150"/>
+    <circle cx="295" cy="150" r="3" fill="#a8445e" stroke="none"/>
+    <line x1="315" y1="150" x2="325" y2="150"/>
+    <circle cx="320" cy="150" r="3" fill="none"/>
+    <line x1="345" y1="150" x2="355" y2="150"/>
+    <circle cx="365" cy="150" r="3" fill="#a8445e" stroke="none"/>
+    <line x1="385" y1="150" x2="445" y2="150"/>
+  </g>
+
+  <!-- Formula: 价值 = 产出 − 成本 -->
+  <g font-family="'Instrument Serif','Source Han Serif','Noto Serif SC', serif" font-size="58" text-anchor="middle">
+    <text x="140" y="240" fill="#2c2416" font-style="italic">价值</text>
+    <text x="240" y="240" fill="#8b6620">=</text>
+    <text x="350" y="240" fill="#3d6b3d" font-style="italic">产出</text>
+    <text x="450" y="240" fill="#a8445e">−</text>
+    <text x="540" y="240" fill="#bf3b3b" font-style="italic">成本</text>
+  </g>
+
+  <!-- Subtitle -->
+  <text x="320" y="292" font-family="'PingFang SC','Noto Sans SC', sans-serif" font-size="13" fill="#5a4e3c" text-anchor="middle" letter-spacing="1">
+    V(L) = A·δ·[ C_net · (L − 1) − k · ln(L) ]
+  </text>
+
+  <!-- Bottom ornament -->
+  <g stroke="#2e5f78" stroke-width="1" fill="none">
+    <line x1="200" y1="325" x2="440" y2="325"/>
+    <rect x="315" y="318" width="10" height="14"/>
+    <circle cx="320" cy="325" r="1.5" fill="#2e5f78"/>
+  </g>
+
+  <!-- Corner flourish marks -->
+  <g stroke="#8b6620" stroke-width="1.2" fill="none">
+    <path d="M 40 40 L 56 40 M 40 40 L 40 56"/>
+    <path d="M 600 40 L 584 40 M 600 40 L 600 56"/>
+    <path d="M 40 360 L 56 360 M 40 360 L 40 344"/>
+    <path d="M 600 360 L 584 360 M 600 360 L 600 344"/>
+  </g>
+</svg>
