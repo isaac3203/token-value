@@ -1,0 +1,71 @@
+{
+  "$schema": "./products.schema.json",
+  "updated": "2026-04-10",
+  "products": [
+    {
+      "id": "pianjian",
+      "title": "偏见",
+      "subtitle": "Pianjian · AI 岗位替代风险分析",
+      "desc": "基于《职业分类大典》与国家统计局数据，量化各岗位被 AI 替代的风险",
+      "href": "https://pianjian.chat/",
+      "external": true,
+      "type": "app",
+      "typeLabel": "应用",
+      "color": "#c85a3d",
+      "icon": "偏",
+      "order": 1
+    },
+    {
+      "id": "futuretalentquiz",
+      "title": "未来人才",
+      "subtitle": "AI 协同 16 型人格测评",
+      "desc": "识别你在人机协同时代的独特偏好——不是学 AI，是让 AI 学你",
+      "href": "https://futuretalentquiz.vercel.app",
+      "external": true,
+      "type": "app",
+      "typeLabel": "应用",
+      "color": "#2c3e5a",
+      "icon": "型",
+      "order": 2
+    },
+    {
+      "id": "calculator-v2",
+      "title": "Token 价值计算器 v2",
+      "subtitle": "战略层 × 执行层 · 完整模型",
+      "desc": "把你的偏见强度、定义力、突触深度折成一条 V(L) 曲线，看到自己的出走点",
+      "href": "/calculator-v2",
+      "external": false,
+      "type": "tool",
+      "typeLabel": "工具",
+      "color": "#60b8e0",
+      "icon": "C",
+      "order": 3
+    },
+    {
+      "id": "token-value-v2",
+      "title": "Token 价值函数 v2",
+      "subtitle": "人机协同的数学结构",
+      "desc": "回本点、死亡谷、出走点——为什么偏见越强的人，越能从 AI 里提走更多价值",
+      "href": "/article/token-value-v2",
+      "external": false,
+      "type": "theory",
+      "typeLabel": "理论",
+      "color": "#d4a855",
+      "icon": "V",
+      "order": 4
+    },
+    {
+      "id": "net-intelligence",
+      "title": "净智度",
+      "subtitle": "比智容与净智效",
+      "desc": "从 AI 产业链到智能度量——用热力学类比，给智能一个可计算的物理量纲",
+      "href": "/article/net-intelligence",
+      "external": false,
+      "type": "concept",
+      "typeLabel": "概念",
+      "color": "#b44a2d",
+      "icon": "I",
+      "order": 5
+    }
+  ]
+}
